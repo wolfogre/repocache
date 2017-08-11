@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 	"time"
+	"text/template"
 )
 
 var (
@@ -19,17 +20,37 @@ func main() {
 	flag.Parse()
 	log.Println(http.ListenAndServe(*bind, &Handler{
 		Root: *root,
+		Script: "./script/",
 	}))
 }
 
 type Handler struct {
 	Root string
+	Script string
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		http.ServeFile(w, r, "./static/index.html")
 		log.Printf("%v %v [%v]", r.Method, r.URL.String(), "static")
+		return
+	}
+
+	if strings.HasPrefix(r.URL.Path, "/script/") {
+		// TODO 有BUG
+		p := h.Script + strings.TrimPrefix(r.URL.Path, "/script/")
+		t, err := template.ParseFiles(p)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
+		err = t.Execute(w, r.Host)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		}
 		return
 	}
 
@@ -71,6 +92,10 @@ func (h *Handler) HandleOrigin(w http.ResponseWriter, r *http.Request, cache boo
 			fillBodyAndCache(resp, w, h.Root + strings.TrimLeft(r.URL.Path, "/"))
 		}
 	}
+}
+
+func (h *Handler) HandleScript(w http.ResponseWriter, r *http.Request, cache bool) {
+
 }
 
 func requestOrigin(r *http.Request) (*http.Response, error) {

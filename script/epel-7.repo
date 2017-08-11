@@ -1,23 +1,23 @@
 [epel]
 name=Extra Packages for Enterprise Linux 7 - $basearch
-baseurl=http://{{ .Hostname }}/epel/7/$basearch
+baseurl=http://{{ . }}/epel/7/$basearch
 failovermethod=priority
 enabled=1
 gpgcheck=0
-gpgkey=http://{{ .Hostname }}/epel/RPM-GPG-KEY-EPEL-7
+gpgkey=http://{{ . }}/epel/RPM-GPG-KEY-EPEL-7
 
 [epel-debuginfo]
 name=Extra Packages for Enterprise Linux 7 - $basearch - Debug
-baseurl=http://{{ .Hostname }}/epel/7/$basearch/debug
+baseurl=http://{{ . }}/epel/7/$basearch/debug
 failovermethod=priority
 enabled=0
-gpgkey=http://{{ .Hostname }}/epel/RPM-GPG-KEY-EPEL-7
+gpgkey=http://{{ . }}/epel/RPM-GPG-KEY-EPEL-7
 gpgcheck=0
 
 [epel-source]
 name=Extra Packages for Enterprise Linux 7 - $basearch - Source
-baseurl=http://{{ .Hostname }}/epel/7/SRPMS
+baseurl=http://{{ . }}/epel/7/SRPMS
 failovermethod=priority
 enabled=0
-gpgkey=http://{{ .Hostname }}/epel/RPM-GPG-KEY-EPEL-7
+gpgkey=http://{{ . }}/epel/RPM-GPG-KEY-EPEL-7
 gpgcheck=0
