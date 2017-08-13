@@ -12,11 +12,13 @@ var (
 
 func main() {
 	flag.Parse()
+	patrol.Start("cache/")
+	defer patrol.Stop()
 	log.Println(http.ListenAndServe(*bind, &Handler{
-		Cache: "./cache/",
-		Html: "./html/",
-		Repo: "./repo/",
-		Sh: "./sh/",
+		Cache: "cache/",
+		Html: "html/",
+		Repo: "repo/",
+		Sh: "sh/",
 	}))
 }
 

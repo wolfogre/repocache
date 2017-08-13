@@ -41,7 +41,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "html")
-	http.ServeFile(w, r, "./html/index.html")
+	http.ServeFile(w, r, h.Html + "index.html")
 }
 
 func (h *Handler) HandleRepo(w http.ResponseWriter, r *http.Request) {
