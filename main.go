@@ -13,32 +13,33 @@ import (
 
 var (
 	bind = flag.String("bind", "0.0.0.0:80", "Bind address")
-	root = flag.String("root", "./repo/", "Files root path")
 )
 
 func main() {
 	flag.Parse()
 	log.Println(http.ListenAndServe(*bind, &Handler{
-		Root: *root,
-		Script: "./script/",
+		Cache: "./cache/",
+		Html: "./html/",
+		Repo: "./script/",
 	}))
 }
 
 type Handler struct {
-	Root string
-	Script string
+	Cache string
+	Html string
+	Repo string
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
-		http.ServeFile(w, r, "./static/index.html")
+		http.ServeFile(w, r, "./html/index.html")
 		log.Printf("%v %v [%v]", r.Method, r.URL.String(), "static")
 		return
 	}
 
-	if strings.HasPrefix(r.URL.Path, "/script/") {
+	if strings.HasPrefix(r.URL.Path, "/repo/") {
 		// TODO 有BUG
-		p := h.Script + strings.TrimPrefix(r.URL.Path, "/script/")
+		p := h.Repo + strings.TrimPrefix(r.URL.Path, "/script/")
 		t, err := template.ParseFiles(p)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
@@ -59,7 +60,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%v %v [%v]", r.Method, r.URL.String(), "dir")
 		return
 	} else {
-		p := h.Root + strings.TrimLeft(r.URL.Path, "/")
+		p := h.Cache + strings.TrimLeft(r.URL.Path, "/")
 		if info, err := os.Stat(p); err == nil && !info.IsDir() {
 			if locked := filelock.RLock(p); locked {
 				http.ServeFile(w, r, p)
@@ -89,7 +90,7 @@ func (h *Handler) HandleOrigin(w http.ResponseWriter, r *http.Request, cache boo
 		if !cache {
 			fillBody(resp, w)
 		} else {
-			fillBodyAndCache(resp, w, h.Root + strings.TrimLeft(r.URL.Path, "/"))
+			fillBodyAndCache(resp, w, h.Cache + strings.TrimLeft(r.URL.Path, "/"))
 		}
 	}
 }
