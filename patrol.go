@@ -35,6 +35,8 @@ func (p *Patrol) Stop() {
 
 func (p *Patrol) worker() {
 	for !p.stopped {
+		start := time.Now()
+		count := 0
 		err := filepath.Walk(p.path, func (path string, f os.FileInfo, err error) error {
 			path = strings.Replace(path, "\\", "/", -1)
 			RETRY:
@@ -44,6 +46,7 @@ func (p *Patrol) worker() {
 			if f.IsDir() {
 				return nil
 			}
+			count++
 			time.Sleep(time.Second)
 			if p.stopped {
 				return errors.New("Stopped")
@@ -91,6 +94,8 @@ func (p *Patrol) worker() {
 		if err != nil {
 			log.Println(err)
 		}
+		log.Printf("Finished patrol, scan %v file, cost %v\n", count, time.Now().Sub(start))
+		time.Sleep(2 * time.Hour)
 	}
 }
 
