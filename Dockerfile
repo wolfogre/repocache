@@ -2,16 +2,16 @@ FROM centos:7
 
 COPY repocache /opt/repocache
 
-COPY html/ /opt/
+COPY html/ /opt/html/
 
-COPY repo/ /opt/
+COPY repo/ /opt/repo/
 
-COPY sh/ /opt/
-
-RUN chmod +x /opt/repocache
+COPY sh/ /opt/sh/
 
 VOLUME ["/opt/cache"]
 
 EXPOSE 80
 
-ENTRYPOINT ["/opt/repocache"]
+WORKDIR /opt/
+
+ENTRYPOINT ["./repocache"]
