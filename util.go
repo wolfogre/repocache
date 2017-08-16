@@ -105,5 +105,5 @@ func fillBodyAndCache(rp *http.Response, w http.ResponseWriter, p string) {
 }
 
 func logRequest(r *http.Request, result string) {
-	log.Printf("%v %v [%v]\n", r.Method, r.URL.String(), result)
+	log.Printf("%v %v %v [%v]\n", r.RemoteAddr, r.Method, r.URL.String(), result)
 }
