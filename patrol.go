@@ -47,7 +47,7 @@ func (p *Patrol) worker() {
 				return nil
 			}
 			count++
-			time.Sleep(time.Second)
+			time.Sleep(10 * time.Millisecond)
 			if p.stopped {
 				return errors.New("Stopped")
 			}
@@ -67,7 +67,6 @@ func (p *Patrol) worker() {
 			if resp.StatusCode == http.StatusNotFound {
 				log.Printf("Remove %v because remoe don't exist\n", path)
 				err := os.Remove(path)
-				log.Println("Remove " + path)
 				if err != nil {
 					return err
 				}
@@ -82,9 +81,8 @@ func (p *Patrol) worker() {
 				return err
 			}
 			if !t.Equal(ff.ModTime()) {
-				log.Printf("Remove %v because local time %v don't match remoe time %v \n", path, ff.ModTime().Local(), t.Local())
+				log.Printf("Remove %v because local time %v don't match remote time %v \n", path, ff.ModTime().Local(), t.Local())
 				err := os.Remove(path)
-				log.Println("Remove " + path)
 				if err != nil {
 					return err
 				}
