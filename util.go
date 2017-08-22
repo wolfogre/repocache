@@ -10,11 +10,18 @@ import (
 )
 
 func handleOrigin(w http.ResponseWriter, r *http.Request, cache string) {
+	retry := 0
+	RETRY:
 	resp, err := requestOrigin(r)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(err.Error()))
-		return
+		if retry > 3 {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			return
+		} else {
+			retry++
+			goto RETRY
+		}
 	}
 	fillHeader(resp, w)
 	if r.Method == "GET" {
