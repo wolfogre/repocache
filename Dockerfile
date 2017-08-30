@@ -4,6 +4,8 @@ COPY repocache /opt/repocache
 
 COPY html/ /opt/html/
 
+COPY img/ /opt/img/
+
 COPY repo/ /opt/repo/
 
 COPY sh/ /opt/sh/
