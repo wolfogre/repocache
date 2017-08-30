@@ -5,6 +5,7 @@ import (
 	"os"
 	"text/template"
 	"net/http"
+	"path/filepath"
 )
 
 type Handler struct {
@@ -84,14 +85,18 @@ func (h *Handler) HandleDir(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HandleCache(w http.ResponseWriter, r *http.Request) {
 	p := h.Cache + strings.TrimLeft(r.URL.Path, "/")
 	if info, err := os.Stat(p); err == nil && !info.IsDir() {
-		if locked := filelock.RLock(p); locked {
-			logRequest(r, "read cache")
-			http.ServeFile(w, r, p)
-			return
-		} else {
-			logRequest(r, "read origin")
-			handleOrigin(w, r, "")
-			return
+		key, err := filepath.Abs(p)
+		if err != nil {
+			if locked := filelock.RLock(key); locked {
+				defer filelock.RUnlock(key)
+				logRequest(r, "read cache")
+				http.ServeFile(w, r, p)
+				return
+			} else {
+				logRequest(r, "read origin")
+				handleOrigin(w, r, "")
+				return
+			}
 		}
 	}
 	logRequest(r, "read origin and write cache")

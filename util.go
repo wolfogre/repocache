@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"path/filepath"
 )
 
 func handleOrigin(w http.ResponseWriter, r *http.Request, cache string) {
@@ -71,13 +72,18 @@ func fillBody(rp *http.Response, w http.ResponseWriter) {
 }
 
 func fillBodyAndCache(rp *http.Response, w http.ResponseWriter, p string) {
-	locked := filelock.Lock(p)
+	key, err := filepath.Abs(p)
+	if err != nil {
+		fillBody(rp, w)
+		return
+	}
+	locked := filelock.Lock(key)
 	if !locked {
 		fillBody(rp, w)
 		return
 	}
 
-	defer filelock.Unlock(p)
+	defer filelock.Unlock(key)
 	buffer := make([]byte, 4096, 4096)
 	os.MkdirAll(path.Dir(p), os.ModeDir)
 	f, err := os.Create(p)

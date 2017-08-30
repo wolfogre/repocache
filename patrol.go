@@ -38,7 +38,6 @@ func (p *Patrol) worker() {
 		start := time.Now()
 		count := 0
 		err := filepath.Walk(p.path, func (path string, f os.FileInfo, err error) error {
-			path = strings.Replace(path, "\\", "/", -1)
 			RETRY:
 			if err != nil {
 				return err
@@ -60,11 +59,15 @@ func (p *Patrol) worker() {
 				println(resp.Status)
 				goto RETRY
 			}
-			for !filelock.Lock(path) {
-				println("Fail get lock of ", path)
+			key, err := filepath.Abs(path)
+			if err != nil {
+				return err
+			}
+			for !filelock.Lock(key) {
+				println("Fail get lock of ", path) // TODO to delete
 				time.Sleep(time.Second)
 			}
-			defer filelock.Unlock(path)
+			defer filelock.Unlock(key)
 			if resp.StatusCode == http.StatusNotFound {
 				log.Printf("Remove %v because remote don't exist\n", path)
 				err := os.Remove(path)
