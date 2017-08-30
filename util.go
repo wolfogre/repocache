@@ -71,13 +71,13 @@ func fillBody(rp *http.Response, w http.ResponseWriter) {
 }
 
 func fillBodyAndCache(rp *http.Response, w http.ResponseWriter, p string) {
-	locked := filelock.WLock(p)
+	locked := filelock.Lock(p)
 	if !locked {
 		fillBody(rp, w)
 		return
 	}
 
-	defer filelock.WUnlock(p)
+	defer filelock.Unlock(p)
 	buffer := make([]byte, 4096, 4096)
 	os.MkdirAll(path.Dir(p), os.ModeDir)
 	f, err := os.Create(p)

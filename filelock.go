@@ -42,12 +42,12 @@ func (fl *FileLock) RUnlock(path string) {
 			}
 			return
 		}
-		panic("RUnlock a WLock")
+		panic("RUnlock a Lock")
 	}
 	panic("RUnlock before RLock")
 }
 
-func (fl *FileLock) WLock(path string) bool {
+func (fl *FileLock) Lock(path string) bool {
 	fl.mutex.Lock()
 	defer fl.mutex.Unlock()
 	if _, ok := fl.status[path]; ok {
@@ -57,7 +57,7 @@ func (fl *FileLock) WLock(path string) bool {
 	return true
 }
 
-func (fl *FileLock) WUnlock(path string) {
+func (fl *FileLock) Unlock(path string) {
 	fl.mutex.Lock()
 	defer fl.mutex.Unlock()
 	if v, ok := fl.status[path]; ok {
@@ -65,7 +65,7 @@ func (fl *FileLock) WUnlock(path string) {
 			delete(fl.status, path)
 			return
 		}
-		panic("WUnlock a RLock")
+		panic("Unlock a RLock")
 	}
-	panic("WUnlock before WLock")
+	panic("Unlock before Lock")
 }

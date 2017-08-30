@@ -60,12 +60,13 @@ func (p *Patrol) worker() {
 				println(resp.Status)
 				goto RETRY
 			}
-			for !filelock.WLock(path) {
+			for !filelock.Lock(path) {
+				println("Fail get lock of ", path)
 				time.Sleep(time.Second)
 			}
-			defer filelock.WUnlock(path)
+			defer filelock.Unlock(path)
 			if resp.StatusCode == http.StatusNotFound {
-				log.Printf("Remove %v because remoe don't exist\n", path)
+				log.Printf("Remove %v because remote don't exist\n", path)
 				err := os.Remove(path)
 				if err != nil {
 					return err
