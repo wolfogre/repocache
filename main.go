@@ -17,6 +17,7 @@ func main() {
 	log.Println(http.ListenAndServe(*bind, &Handler{
 		Cache: "cache/",
 		Html: "html/",
+		Img: "img/",
 		Repo: "repo/",
 		Sh: "sh/",
 	}))

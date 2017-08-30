@@ -11,6 +11,7 @@ import (
 type Handler struct {
 	Cache string
 	Html string
+	Img string
 	Repo string
 	Sh string
 }
@@ -18,6 +19,11 @@ type Handler struct {
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path == "/" {
 		h.HandleIndex(w, r)
+		return
+	}
+
+	if r.URL.Path == "/favicon.ico" {
+		h.HandleIcon(w, r)
 		return
 	}
 
@@ -43,6 +49,11 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) HandleIndex(w http.ResponseWriter, r *http.Request) {
 	logRequest(r, "html")
 	http.ServeFile(w, r, h.Html + "index.html")
+}
+
+func (h *Handler) HandleIcon(w http.ResponseWriter, r *http.Request) {
+	logRequest(r, "img")
+	http.ServeFile(w, r, h.Img + "favicon.ico")
 }
 
 func (h *Handler) HandleRepo(w http.ResponseWriter, r *http.Request) {
