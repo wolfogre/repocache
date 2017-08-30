@@ -80,6 +80,8 @@ get_version() {
     esac
 }
 
+get_version
+
 if [ "$lsb_dist" = "centos" ] ; then
     mv -f /etc/yum.repos.d/CentOS-Base.repo.repocache_backup /etc/yum.repos.d/CentOS-Base.repo
     if [ -r /etc/yum.repos.d/epel.repo.repocache_backup ]; then

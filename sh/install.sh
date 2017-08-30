@@ -91,6 +91,8 @@ installEpel(){
     esac
 }
 
+get_version
+
 if [ "$lsb_dist" = "centos" ] ; then
     mv /etc/yum.repos.d/CentOS-Base.repo /etc/yum.repos.d/CentOS-Base.repo.repocache_backup
     if [ $dist_version = "7" ] ; then
