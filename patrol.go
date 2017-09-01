@@ -50,7 +50,7 @@ func (p *Patrol) worker() {
 			if p.stopped {
 				return errors.New("Stopped")
 			}
-			resp, err := http.Head("http://mirrors.aliyun.com/" + strings.TrimPrefix(path, p.path))
+			resp, err := http.Head("http://mirrors.aliyun.com/" + strings.TrimPrefix(strings.Replace(path, "\\", "/", -1), p.path))
 			if err != nil {
 				println(err.Error())
 				goto RETRY
@@ -63,12 +63,16 @@ func (p *Patrol) worker() {
 			if err != nil {
 				return err
 			}
+
 			for !filelock.Lock(key) {
 				println("Fail get lock of ", path) // TODO to delete
 				time.Sleep(time.Second)
 			}
 			defer filelock.Unlock(key)
+
 			if resp.StatusCode == http.StatusNotFound {
+				//log.Println("http://mirrors.aliyun.com/" + strings.TrimPrefix(strings.Replace(path, "\\", "/", -1), p.path))
+				//log.Printf("%+v\n", resp)
 				log.Printf("Remove %v because remote don't exist\n", path)
 				err := os.Remove(path)
 				if err != nil {
@@ -76,10 +80,18 @@ func (p *Patrol) worker() {
 				}
 				return nil
 			}
+
 			ff, err := os.Stat(path)
 			if err != nil {
 				return err
 			}
+
+			if ff.Size() != resp.ContentLength {
+				log.Printf("Remove %v because local size %v don't match remote size %v \n", path, ff.Size(), resp.ContentLength)
+				err := os.Remove(path)
+				return err
+			}
+
 			t, err := time.Parse("Mon, 2 Jan 2006 15:04:05 MST", resp.Header.Get("Last-Modified"))
 			if err != nil {
 				return err
@@ -87,9 +99,7 @@ func (p *Patrol) worker() {
 			if !t.Equal(ff.ModTime()) {
 				log.Printf("Remove %v because local time %v don't match remote time %v \n", path, ff.ModTime().Local(), t.Local())
 				err := os.Remove(path)
-				if err != nil {
-					return err
-				}
+				return err
 			}
 			return nil
 		})
