@@ -109,7 +109,12 @@ func (h *Handler) HandleCache(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+	} else {
+		if err != nil {
+			logRequest(r, "read origin and write cache because of " + err.Error())
+		} else {
+			logRequest(r, "read origin and write cache because of it is dir")
+		}
+		handleOrigin(w, r, p)
 	}
-	logRequest(r, "read origin and write cache")
-	handleOrigin(w, r, p)
 }
