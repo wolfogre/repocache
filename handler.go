@@ -97,7 +97,7 @@ func (h *Handler) HandleCache(w http.ResponseWriter, r *http.Request) {
 	p := h.Cache + strings.TrimLeft(r.URL.Path, "/")
 	if info, err := os.Stat(p); err == nil && !info.IsDir() {
 		key, err := filepath.Abs(p)
-		if err != nil {
+		if err == nil {
 			if locked := filelock.RLock(key); locked {
 				defer filelock.RUnlock(key)
 				logRequest(r, "read cache")
@@ -108,6 +108,10 @@ func (h *Handler) HandleCache(w http.ResponseWriter, r *http.Request) {
 				handleOrigin(w, r, "")
 				return
 			}
+		} else {
+			logRequest(r, "filepath.Abs() return " + err.Error())
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
 		}
 	} else {
 		if err != nil {
